@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -23,4 +23,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
+
+:root { --bg: #fff; --text: #111 }
+body { font-family: Inter, Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+.container { max-width: 1100px; margin: 0 auto; }
+.navbar { background: #fff; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+.product-card img { width:100%; height:150px; object-fit:cover; }
