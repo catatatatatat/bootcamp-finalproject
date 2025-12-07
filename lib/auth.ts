@@ -1,4 +1,3 @@
-// lib/auth.ts
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   createUserWithEmailAndPassword,
