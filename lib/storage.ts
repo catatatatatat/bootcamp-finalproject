@@ -1,8 +1,8 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { getStorageClient } from './firebase'; // ✅ use the client-only getter
+import { getStorageClient } from './firebase'; 
 
 export async function uploadImage(file: File): Promise<string> {
-  const storage = getStorageClient(); // ✅ initialize client-side Storage
+  const storage = getStorageClient(); 
   const path = `products/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
   const storageRef = ref(storage, path);
 
