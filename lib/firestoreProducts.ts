@@ -12,7 +12,7 @@ import {
   DocumentData,
 } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db, getStorageClient } from './firebase';
 import type { Product } from '../app/hooks/useProducts';
 
 export interface FetchOptions {
@@ -69,6 +69,7 @@ export async function fetchSellerProducts(opts: FetchOptions): Promise<{
 }
 
 export async function uploadProductImage(sellerId: string, file: File): Promise<string> {
+  const storage = getStorageClient(); // ✅ use client-only getter
   const timestamp = Date.now();
   const path = `products/${sellerId}/${timestamp}-${file.name}`;
   const storageRef = ref(storage, path);
@@ -87,7 +88,6 @@ export async function uploadProductImage(sellerId: string, file: File): Promise<
     );
   });
 }
-
 
 export async function addProduct(payload: Omit<Product, 'id' | 'createdAt'> & { imageUrl?: string }) {
   const data: DocumentData = {

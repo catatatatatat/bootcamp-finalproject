@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, db } from '../../lib/firebase';
+import { db, getAuthClient } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 export type AppRole = 'customer' | 'seller' | null;
@@ -14,13 +14,24 @@ export default function useAuth() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let auth;
+    try {
+      auth = getAuthClient(); // ✅ safely get Auth client on client-side
+    } catch {
+      console.warn('Firebase Auth is not available on the server.');
+      setLoading(false);
+      return;
+    }
+
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+
       if (!u) {
         setRole(null);
         setLoading(false);
         // clear client cookies used for middleware
         try { document.cookie = 'role=; path=/; max-age=0'; } catch {}
+        try { document.cookie = 'token=; path=/; max-age=0'; } catch {}
         return;
       }
 
@@ -29,10 +40,9 @@ export default function useAuth() {
         if (snap.exists()) {
           const data = snap.data() as { role?: AppRole };
           setRole(data.role ?? null);
-          // set a client-side cookie to allow middleware UI-level guards
-          // NOTE: this cookie is not secure; for production use server-set httpOnly cookies
+
+          // set client cookies for middleware UI-level guards
           document.cookie = `role=${data.role ?? ''}; path=/`;
-          // optionally set a lightweight token cookie (uid) for middleware routing
           document.cookie = `token=${u.uid}; path=/`;
         }
       } catch (err) {

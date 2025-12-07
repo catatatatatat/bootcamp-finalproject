@@ -1,11 +1,14 @@
+// lib/auth.ts
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   User,
+  Auth,
 } from 'firebase/auth';
-import { auth, db } from './firebase';
+import { db } from './firebase';
+import { getAuthClient } from './firebase'; // new getter function
 
 export type Role = 'customer' | 'seller';
 
@@ -15,7 +18,12 @@ export interface UserMeta {
   createdAt?: string;
 }
 
-export async function registerUser(email: string, password: string, role: Role): Promise<User> {
+export async function registerUser(
+  email: string,
+  password: string,
+  role: Role
+): Promise<User> {
+  const auth: Auth = getAuthClient(); // guaranteed non-null
   const userCred = await createUserWithEmailAndPassword(auth, email, password);
   const uid = userCred.user.uid;
 
@@ -28,7 +36,11 @@ export async function registerUser(email: string, password: string, role: Role):
   return userCred.user;
 }
 
-export async function loginUser(email: string, password: string): Promise<{ user: User; meta: UserMeta | null }> {
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<{ user: User; meta: UserMeta | null }> {
+  const auth: Auth = getAuthClient(); // guaranteed non-null
   const cred = await signInWithEmailAndPassword(auth, email, password);
   const uid = cred.user.uid;
   const snap = await getDoc(doc(db, 'users', uid));
@@ -37,5 +49,6 @@ export async function loginUser(email: string, password: string): Promise<{ user
 }
 
 export async function logoutUser(): Promise<void> {
+  const auth: Auth = getAuthClient(); // guaranteed non-null
   await signOut(auth);
 }
